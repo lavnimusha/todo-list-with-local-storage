@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Local Strorage and Event Delegation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+        <style>
+        body{
+            box-sizing: border-box;
+            background-image: url('https://www.euruni.edu/blog/wp-content/uploads/brooke-lark-229136.jpg');
+            background-size: cover;
+            background-position: fixed;
+            background-repeat: no-repeat;
+            background-attachment: fixed; 
+            font-family: 'Open Sans', sans-serif; 
+            /*text-align: center;*/
+        }
+        h1{
+            text-align: center;
+        }
+        .main{
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top:20%;
+            left: 30%;
+            width: 40%;
+            z-index: 2;
+            box-shadow: 5px 5px rgba(0, 0, 0, 0.5);
+        }
+        .items, .item{
+            background: white;
+            border-bottom: 1px solid lightgray;
+            line-height: 5vh;
+            padding: 5px;   
+        }
+        p{
+            line-height: 5vh;
+            display: inline;
+        }
+        #inputs{
+            width: 70%; 
+            line-height: 4vh;
+        }
+        .items > input{
+            
+            border: 5px solid yellow;
+            margin: a5px;
+        }
+        .items > input:checked{
+            content: url("https://upload.wikimedia.org/wikipedia/commons/8/8d/Taco_detailed_icon.png");
+            background-position: left center;
+            background-size: 5% 5%;
+            width: 20px;
+            height: 20px;
+            background-repeat: no-repeat;
+        }
+        button{
+            line-height: 4vh;
+            background-color: aliceblue;
+        }
+        </style>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <div class="main">
+                <h1>Todo List</h1>
+            <div id="list">
+                    
+            </div>
+            <div class="item">
+                <input id = "inputs" type = "text" value = "">
+                <button id = "clicks" type = "button">+ Add Item</button>
+            </div>
+
+        </div>
+        <script>
+            let clk = document.getElementById('clicks');
+            let inputs = document.getElementById('inputs');
+            var parent = document.getElementById('list');
+
+            let arr = JSON.parse(localStorage.getItem('todolist'))||[];
+            inputs.addEventListener('change', handler);
+
+            function handler(event){
+                clk.addEventListener('click',()=>{
+                    
+                    if(event.target.value === "")return;
+                    else if (arr.find((item)=>item.name === event.target.value) !== undefined)return;                
+                        arr.push({name:event.target.value,status:0});
+                        localStorage.setItem('todolist',JSON.stringify(arr));
+                        inputs.value = "";//else wont be ready for next input
+                        displayItems();// to update UI                
+                    });
+            }
+            function displayItems(){
+                let local = [];
+                for(let i = 0; i < arr.length; i++){
+                    local.push(
+                        `<div class="items">
+                            <input type="checkbox" data-index=${i} id="items${i}" ${arr[i].status ? 'checked':''}>
+                            <p>${arr[i].name}</p>
+                        </div>`
+                    )
+                }
+                parent.innerHTML = local.join("");     
+            }    
+            
+            function updateFunc(e){
+                if(!e.target.matches('input'))return;
+                let inx = (e.target.dataset.index);
+                arr[inx].status = !arr[inx].status;
+                localStorage.setItem('todolist',JSON.stringify(arr));
+                displayItems();  
+            }
+            document.addEventListener('click',updateFunc);
+            window.onload = displayItems;
+        </script>
+    </body>
+</html>
